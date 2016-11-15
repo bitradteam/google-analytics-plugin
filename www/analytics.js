@@ -1,6 +1,10 @@
 function UniversalAnalyticsPlugin() {}
 
 UniversalAnalyticsPlugin.prototype.startTrackerWithId = function(id, dispatchPeriod, success, error) {
+  if (typeof dispatchPeriod === 'undefined' || dispatchPeriod === null) {
+    dispatchPeriod = '';
+  }
+
   cordova.exec(success, error, 'UniversalAnalytics', 'startTrackerWithId', [id, dispatchPeriod]);
 };
 
