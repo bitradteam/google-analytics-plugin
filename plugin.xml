@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-google-analytics"
-    version="1.7.0">
+    version="1.8.3">
   <engines>
     <engine name="cordova" version=">=3.0.0" />
   </engines>
   <name>Google Universal Analytics Plugin</name>
-  <description>Simple tracking (screens/events) for Google Analytics SDK 3.14 (iOS), SDK 4.0 (Android), and WP8</description>
+  <description>Simple tracking (screens/events) for Google Analytics SDK 3.14 (iOS), SDK 4.0 (Android), Browsers and WP8</description>
   <author>Daniel C. Wilson</author>
   <license>MIT License</license>
   <js-module src="www/analytics.js" name="UniversalAnalytics">
@@ -95,5 +95,27 @@
     <source-file src="wp8/PhoneHelpers.cs" />
     <source-file src="wp8/PhoneNameResolver.cs" />
     <source-file src="wp8/PlatformInfoProvider.WP.cs" />
+  </platform>
+
+  <!-- windows -->
+  <platform name="windows">
+    <js-module src="windows/GoogleAnalyticsProxy.js" name="UniversalAnalyticsPlugin">
+        <runs />
+    </js-module>
+
+    <config-file target="package.windows10.appxmanifest" parent="/Package/Capabilities" versions=">=10.0" device-target="win">
+        <Capability Name="internetClient" />
+    </config-file>
+    <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities" versions=">=8.1.0" device-target="win">
+        <Capability Name="internetClient" />
+    </config-file>
+    <config-file target="package.phone.appxmanifest" parent="/Package/Capabilities" versions=">=8.1.0" device-target="phone">
+        <Capability Name="internetClientServer" />
+    </config-file>
+
+    <info>
+      You need to install Windows SDK for Google Analytics™ (UWP.SDKforGoogleAnalytics.Native) via nuget package manager
+      and set target to either x86 or x64!
+    </info>
   </platform>
 </plugin>

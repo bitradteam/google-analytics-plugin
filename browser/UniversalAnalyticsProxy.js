@@ -1,33 +1,52 @@
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
 function UniversalAnalyticsProxy() {
   this._isDebug = false;
   this._isEcommerceRequired = false;
   this._trackingId = null;
 
-  this._uncaughtExceptionHandler = this._uncaughtExceptionHandler.bind(this);
+  var namespace = window.GoogleAnalyticsObject || 'nativeGa';
+  loadGoogleAnalytics.call(this, namespace);
+
+  bindAll(this, [
+    '_ensureEcommerce',
+    '_uncaughtExceptionHandler',
+    'addCustomDimension',
+    'addTransaction',
+    'addTransactionItem',
+    'debugMode',
+    'enableUncaughtExceptionReporting',
+    'setAllowIDFACollection',
+    'setAnonymizeIp',
+    'setAppVersion',
+    'setOptOut',
+    'setUserId',
+    'getVar',
+    'setVar',
+    'startTrackerWithId',
+    'trackEvent',
+    'trackException',
+    'trackMetric',
+    'trackTiming',
+    'trackView'
+  ]);
 }
 
 UniversalAnalyticsProxy.prototype = {
   startTrackerWithId: wrap(function (trackingId) {
     this._trackingId = trackingId;
 
-    ga('create', {
+    this._ga('create', {
       trackingId: trackingId,
       cookieDomain: 'auto'
     });
-    ga('set', 'appName', document.title);
+    this._ga('set', 'appName', document.title);
   }),
 
   setUserId: wrap(function (userId) {
-    ga('set', 'userId', userId);
+    this._ga('set', 'userId', userId);
   }),
 
   setAnonymizeIp: wrap(function (anonymize) {
-    ga('set', 'anonymizeIp', anonymize);
+    this._ga('set', 'anonymizeIp', anonymize);
   }),
 
   setOptOut: wrap(function (optout) {
@@ -38,23 +57,33 @@ UniversalAnalyticsProxy.prototype = {
   }),
 
   setAppVersion: wrap(function (version) {
-    ga('set', 'appVersion', version);
+    this._ga('set', 'appVersion', version);
   }),
 
   setAllowIDFACollection: wrap(function (enable) {
     // Not supported by browser platofrm
   }),
 
+  getVar: function (param, success, error) {
+    this._ga(function(tracker){
+      success(tracker.get(param));
+    });
+  },
+
+  setVar: wrap(function(param, value){
+    this._ga('set', param, value);
+  }),  
+
   debugMode: wrap(function () {
     this._isDebug = true;
   }),
 
   addCustomDimension: wrap(function (key, value) {
-    ga('set', 'dimension' + key, value);
+    this._ga('set', 'dimension' + key, value);
   }),
 
   trackMetric: wrap(function (key, value) {
-    ga('set', 'metric' + key, value);
+    this._ga('set', 'metric' + key, value);
   }),
 
   trackEvent: send(function (category, action, label, value, newSession) {
@@ -94,7 +123,7 @@ UniversalAnalyticsProxy.prototype = {
 
   addTransaction: wrap(function (transactionId, affiliation, revenue, tax, shipping, currencyCode) {
     this._ensureEcommerce();
-    ga('ecommerce:addTransaction', {
+    this._ga('ecommerce:addTransaction', {
       id: transactionId,
       affiliation: affiliation,
       revenue: String(revenue),
@@ -106,7 +135,7 @@ UniversalAnalyticsProxy.prototype = {
 
   addTransactionItem: wrap(function (transactionId, name, sku, category, price, quantity, currencyCode) {
     this._ensureEcommerce();
-    ga('ecommerce:addItem', {
+    this._ga('ecommerce:addItem', {
       id: transactionId,
       name: name,
       sku: sku,
@@ -125,17 +154,25 @@ UniversalAnalyticsProxy.prototype = {
     }
   }),
 
+  _ga: function () {
+    var args = Array.prototype.slice.call(arguments);
+    if (this._isDebug) {
+      console.debug('UniversalAnalyticsProxy', args);
+    }
+    this._nativeGa.apply(this._nativeGa, args);
+  },
+
   _uncaughtExceptionHandler: function (err) {
-    ga('send', {
+    this._ga('send', {
       hitType: 'exception',
       exDescription: err.message,
       exFatal: true
     });
   },
 
-  _ensureEcommerce() {
+  _ensureEcommerce: function() {
     if (this._isEcommerceRequired) return;
-    ga('require', 'ecommerce');
+    this._ga('require', 'ecommerce');
     this._isEcommerceRequired = true;
   }
 };
@@ -153,7 +190,7 @@ function send(fn) {
     };
 
     try {
-      ga('send', command);
+      this._ga('send', command);
     } catch (err) {
       clearTimeout(timeout);
       defer(error, err);
@@ -161,12 +198,42 @@ function send(fn) {
   };
 }
 
+function bindAll(that, names) {
+  names.forEach(function(name) {
+    if (typeof that[name] === 'function') {
+      that[name] = that[name].bind(that);
+    }
+  });
+}
+
+/**
+ * Proceed to the asynchronous loading of Google's analytics.js.
+ * Initialize `this._nativeGa` once the script is loaded, using
+ * the `onload` callback of the `script` DOM node.
+ *
+ * @param {string} name Reference (global namespace) of the GA object.
+ */
+function loadGoogleAnalytics(name) {
+  window.GoogleAnalyticsObject = name;
+
+  window[name] = window[name] || function () {
+    (window[name].q = window[name].q || []).push(arguments);
+  };
+  window[name].l = 1 * new Date();
+  this._nativeGa = window[name];
+
+  var script = document.createElement('script');
+  var scripts = document.getElementsByTagName('script')[0];
+  script.src = 'https://www.google-analytics.com/analytics.js';
+  script.async = 1;
+  scripts.parentNode.insertBefore(script, scripts);
+
+  // analytics.js creates a new object once initialized, update our reference
+  script.onload = (function() { this._nativeGa = window[name]; }).bind(this);
+}
+
 function wrap(fn) {
   return function (success, error, args) {
-    if (this._isDebug) {
-      console.debug('UniversalAnalytics', arguments.callee.name, args);
-    }
-
     try {
       fn.apply(this, args);
       setTimeout(success, 0);
