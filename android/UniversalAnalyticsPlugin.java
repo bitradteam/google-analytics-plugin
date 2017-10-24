@@ -27,7 +27,6 @@ public class UniversalAnalyticsPlugin extends CordovaPlugin {
     public static final String ADD_TRANSACTION = "addTransaction";
     public static final String ADD_TRANSACTION_ITEM = "addTransactionItem";
 
-    public static final String SET_ALLOW_IDFA_COLLECTION = "setAllowIDFACollection";
     public static final String SET_USER_ID = "setUserId";
     public static final String SET_ANONYMIZE_IP = "setAnonymizeIp";
     public static final String SET_OPT_OUT = "setOptOut";
@@ -106,8 +105,6 @@ public class UniversalAnalyticsPlugin extends CordovaPlugin {
                         length > 6 ? args.getString(6) : null, callbackContext);
             }
             return true;
-        } else if (SET_ALLOW_IDFA_COLLECTION.equals(action)) {
-            this.setAllowIDFACollection(args.getBoolean(0), callbackContext);
         } else if (SET_USER_ID.equals(action)) {
             String userId = args.getString(0);
             this.setUserId(userId, callbackContext);
@@ -354,16 +351,6 @@ public class UniversalAnalyticsPlugin extends CordovaPlugin {
         } else {
             callbackContext.error("Expected non-empty ID.");
         }
-    }
-
-    private void setAllowIDFACollection(Boolean enable, CallbackContext callbackContext) {
-        if (!trackerStarted) {
-            callbackContext.error("Tracker not started");
-            return;
-        }
-
-        tracker.enableAdvertisingIdCollection(enable);
-        callbackContext.success("Enable Advertising Id Collection: " + enable);
     }
 
     private void setVar(String variable, String value, CallbackContext callbackContext) {

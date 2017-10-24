@@ -12,7 +12,6 @@
 }
 
 - (void) startTrackerWithId: (CDVInvokedUrlCommand*)command;
-- (void) setAllowIDFACollection: (CDVInvokedUrlCommand*) command;
 - (void) setUserId: (CDVInvokedUrlCommand*)command;
 - (void) setAppVersion: (CDVInvokedUrlCommand*)command;
 - (void) getVar: (CDVInvokedUrlCommand*)command;

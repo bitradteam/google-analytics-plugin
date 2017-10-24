@@ -14,7 +14,6 @@ function UniversalAnalyticsProxy() {
     'addTransactionItem',
     'debugMode',
     'enableUncaughtExceptionReporting',
-    'setAllowIDFACollection',
     'setAnonymizeIp',
     'setAppVersion',
     'setOptOut',
@@ -58,10 +57,6 @@ UniversalAnalyticsProxy.prototype = {
 
   setAppVersion: wrap(function (version) {
     this._ga('set', 'appVersion', version);
-  }),
-
-  setAllowIDFACollection: wrap(function (enable) {
-    // Not supported by browser platofrm
   }),
 
   getVar: function (param, success, error) {

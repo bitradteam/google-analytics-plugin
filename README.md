@@ -123,9 +123,6 @@ window.ga.setAnonymizeIp(true)
 //To set Opt-out:
 window.ga.setOptOut(true)
 
-//To enabling Advertising Features in Google Analytics allows you to take advantage of Remarketing, Demographics & Interests reports, and more:
-window.ga.setAllowIDFACollection(true)
-
 To enable verbose logging:
 window.ga.debugMode()
 // set's dry run mode on Android and Windows platform, so that all hits are only echoed back by the google analytics service and no actual hit is getting tracked!
@@ -156,9 +153,8 @@ import { Platform } from 'ionic-angular';
           console.log('Google analytics is ready now');
           //the component is ready and you can call any method here
           this.ga.debugMode();
-          this.ga.setAllowIDFACollection(true);
         })
-        .catch(e => console.log('Error starting GoogleAnalytics', e));      
+        .catch(e => console.log('Error starting GoogleAnalytics', e));
     });
   }
 ```
@@ -224,7 +220,6 @@ The plugin will pick up the new name.
 # Windows 10 (UWP)
 
 The following plugin methods are (currently) not supported by the UWP.SDKforGoogleAnalytics.Native package:
-* `setAllowIDFACollection()`
 * `addTransaction()`
 * `addTransactionItem()`
 

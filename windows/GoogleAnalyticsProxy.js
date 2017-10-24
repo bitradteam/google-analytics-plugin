@@ -195,11 +195,6 @@ module.exports = {
         win();
     },
 
-    setAllowIDFACollection: function () {
-        // not supported
-        fail("not supported on Windows platform");
-    },
-
     setAppVersion: function (win, fail, args) {
         if (!args || args.length === 0 || args[0] === "") {
             fail("Expected non empty string argument");
